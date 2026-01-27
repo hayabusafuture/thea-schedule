@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thea's School Schedule</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .today-info {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 10px 20px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .current-time {
+            display: block;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            color: white;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab:hover, .tab.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .card h2 .icon {
+            font-size: 1.5rem;
+        }
+
+        /* Day Toggle */
+        .day-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .day-toggle-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .day-toggle-btn:hover, .day-toggle-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .day-toggle-btn.active {
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Schedule Items */
+        .schedule-item {
+            display: flex;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            transition: all 0.3s;
+            align-items: center;
+        }
+
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+
+        .schedule-item.current {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+            transform: scale(1.02);
+        }
+
+        .schedule-item.current .schedule-time {
+            color: white;
+        }
+
+        .schedule-item.current .schedule-activity {
+            color: white;
+        }
+
+        .schedule-item.past {
+            opacity: 0.5;
+        }
+
+        .schedule-time {
+            width: 75px;
+            min-width: 75px;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.9rem;
+        }
+
+        .schedule-activity {
+            flex: 1;
+            color: #333;
+        }
+
+        .schedule-activity.meal {
+            flex: 1;
+        }
+
+        .meal-inline {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            border-radius: 12px;
+            padding: 12px 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .meal-inline .meal-type {
+            font-size: 0.75rem;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .meal-inline .meal-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .meal-inline .meal-desc {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .meal-inline .meal-chinese {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .schedule-item.current .meal-inline {
+            background: rgba(255,255,255,0.2);
+            border-left-color: white;
+        }
+
+        .schedule-item.current .meal-inline .meal-type,
+        .schedule-item.current .meal-inline .meal-name,
+        .schedule-item.current .meal-inline .meal-desc,
+        .schedule-item.current .meal-inline .meal-chinese {
+            color: white;
+        }
+
+        .schedule-item.current .meal-inline .meal-desc,
+        .schedule-item.current .meal-inline .meal-chinese {
+            opacity: 0.9;
+        }
+
+        .now-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: auto;
+            animation: pulse 1.5s infinite;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* Meal Cards */
+        .meal-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .meal-card.current-meal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .meal-card.current-meal h3 {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .meal-card.current-meal .meal-name,
+        .meal-card.current-meal .meal-desc,
+        .meal-card.current-meal .meal-chinese {
+            color: white;
+        }
+
+        .meal-card.current-meal .meal-chinese {
+            opacity: 0.85;
+        }
+
+        .meal-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .meal-card .meal-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .meal-card .meal-desc {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .meal-card .meal-chinese {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Week/Day Selectors */
+        .week-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .week-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .week-btn:hover, .week-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .day-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .day-tab {
+            padding: 10px 15px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .day-tab:hover, .day-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -10px;
+            padding: 0 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+        }
+
+        td:first-child {
+            position: sticky;
+            left: 0;
+            background: white;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        tr:nth-child(even) td:first-child {
+            background: #f9f9f9;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        /* Holidays */
+        .holiday-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            gap: 10px;
+        }
+
+        .holiday-item:last-child {
+            border-bottom: none;
+        }
+
+        .holiday-name {
+            font-weight: 500;
+        }
+
+        .holiday-date {
+            color: #667eea;
+            font-size: 0.9rem;
+        }
+
+        .holiday-type {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 10px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .holiday-type.closure {
+            background: #ffe0e0;
+            color: #c00;
+        }
+
+        .holiday-type.early {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .weekend-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .weekend-message .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            .card {
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            .card h2 {
+                font-size: 1.1rem;
+            }
+
+            .tabs {
+                gap: 6px;
+            }
+
+            .tab {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+
+            .schedule-time {
+                width: 65px;
+                min-width: 65px;
+                font-size: 0.8rem;
+            }
+
+            .schedule-activity {
+                font-size: 0.9rem;
+            }
+
+            .now-badge {
+                padding: 2px 8px;
+                font-size: 0.7rem;
+            }
+
+            .day-toggle {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .day-toggle-btn {
+                padding: 12px 20px;
+            }
+
+            .meal-card {
+                padding: 15px;
+            }
+
+            .meal-card .meal-name {
+                font-size: 1.1rem;
+            }
+
+            .meal-card .meal-desc,
+            .meal-card .meal-chinese {
+                font-size: 0.85rem;
+            }
+
+            .week-selector {
+                justify-content: center;
+            }
+
+            .week-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .holiday-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .tab {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Thea's School Day</h1>
+            <p>The Schoolhouse - Sweet Peas 2026</p>
+            <div class="today-info" id="today-info">
+                <span id="date-display"></span>
+                <span class="current-time" id="time-display"></span>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showSection('today')">Today</button>
+            <button class="tab" onclick="showSection('schedule')">Full Schedule</button>
+            <button class="tab" onclick="showSection('menu')">Weekly Menu</button>
+            <button class="tab" onclick="showSection('holidays')">Holidays</button>
+        </div>
+
+        <!-- TODAY SECTION -->
+        <div id="today" class="section active">
+            <div class="day-toggle">
+                <button class="day-toggle-btn active" id="btn-today" onclick="showDayView('today')">Today</button>
+                <button class="day-toggle-btn" id="btn-tomorrow" onclick="showDayView('tomorrow')">Tomorrow</button>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">📅</span> <span id="schedule-title">Today's Schedule</span></h2>
+                <p id="menu-week-info" style="color:#666;font-size:0.85rem;margin:-10px 0 15px 0;"></p>
+                <div id="day-schedule"></div>
+            </div>
+        </div>
+
+        <!-- FULL SCHEDULE SECTION -->
+        <div id="schedule" class="section">
+            <div class="card">
+                <h2><span class="icon">📋</span> Weekly Timetable</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <tr>
+                            <th>Time</th>
+                            <th>Monday</th>
+                            <th>Tuesday</th>
+                            <th>Wednesday</th>
+                            <th>Thursday</th>
+                            <th>Friday</th>
+                        </tr>
+                        <tr><td>7:00am</td><td colspan="5" style="text-align:center">Arrival / Health Check</td></tr>
+                        <tr><td>8:00am</td><td colspan="5" style="text-align:center">My Time</td></tr>
+                        <tr><td>8:30am</td><td colspan="5" style="text-align:center">Eat the World (Breakfast)</td></tr>
+                        <tr><td>9:00am</td><td>Trikes/Bikes</td><td>Sand Play</td><td>Water Play</td><td>Fun & Move</td><td>Playground/Nature Walk</td></tr>
+                        <tr><td>9:30am</td><td colspan="2" style="text-align:center">Changemakers</td><td>Shower Time</td><td colspan="2" style="text-align:center">Changemakers</td></tr>
+                        <tr><td>10:00am</td><td colspan="5" style="text-align:center">Real World</td></tr>
+                        <tr><td>10:30am</td><td colspan="5" style="text-align:center">Music Around the World</td></tr>
+                        <tr><td>11:00am</td><td colspan="5" style="text-align:center">Eat the World (Lunch)</td></tr>
+                        <tr><td>11:30am</td><td>Project Time</td><td colspan="3" style="text-align:center">Play Station</td><td>Project Time</td></tr>
+                        <tr><td>12:00pm</td><td colspan="5" style="text-align:center">Routine Care / My Time</td></tr>
+                        <tr><td>12:45pm</td><td colspan="5" style="text-align:center">Nap Time</td></tr>
+                        <tr><td>2:45pm</td><td colspan="5" style="text-align:center">Routine Care</td></tr>
+                        <tr><td>3:00pm</td><td colspan="5" style="text-align:center">Eat the World (Tea)</td></tr>
+                        <tr><td>3:30pm</td><td>Junior Maker House</td><td>Project Time</td><td>Junior Theatre House</td><td>Junior Art House</td><td>Junior G.E.M.S House</td></tr>
+                        <tr><td>4:15pm</td><td colspan="5" style="text-align:center">Urban Wellness</td></tr>
+                        <tr><td>5:00pm</td><td colspan="5" style="text-align:center">My Time</td></tr>
+                        <tr><td>5:30pm</td><td colspan="5" style="text-align:center">Dismissal (FD 1)</td></tr>
+                        <tr><td>7:00pm</td><td colspan="5" style="text-align:center">Dismissal (FD 2)</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENU SECTION -->
+        <div id="menu" class="section">
+            <div class="card">
+                <h2><span class="icon">🍱</span> 5-Week Rotating Menu</h2>
+
+                <div class="week-selector">
+                    <button class="week-btn active" onclick="showWeek(1)">Week 1</button>
+                    <button class="week-btn" onclick="showWeek(2)">Week 2</button>
+                    <button class="week-btn" onclick="showWeek(3)">Week 3</button>
+                    <button class="week-btn" onclick="showWeek(4)">Week 4</button>
+                    <button class="week-btn" onclick="showWeek(5)">Week 5</button>
+                </div>
+
+                <div class="day-tabs">
+                    <button class="day-tab active" onclick="showDay(0)">Monday</button>
+                    <button class="day-tab" onclick="showDay(1)">Tuesday</button>
+                    <button class="day-tab" onclick="showDay(2)">Wednesday</button>
+                    <button class="day-tab" onclick="showDay(3)">Thursday</button>
+                    <button class="day-tab" onclick="showDay(4)">Friday</button>
+                </div>
+
+                <div id="menu-content"></div>
+            </div>
+        </div>
+
+        <!-- HOLIDAYS SECTION -->
+        <div id="holidays" class="section">
+            <div class="card">
+                <h2><span class="icon">🎉</span> 2026 Holidays & Closures</h2>
+                <div id="holidays-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuData = {
+            1: {
+                monday: {
+                    breakfast: { name: "Breakfast Cereals", desc: "Wholegrain Mixed Cereals, Fresh Fruits", cn: "早餐麦片 - 全麦混合谷物、新鲜水果" },
+                    lunch: { name: "Oishi Yakisoba", desc: "Stir-fry Wholemeal Noodles, Fish, Carrots, Cabbage", cn: "日式炒面条 - 炒全麦面条、鱼肉、胡萝卜、卷心菜" },
+                    tea: { name: "Wholegrain Apple Pancake", desc: "Freshly made Pancakes, Milk, Apple", cn: "苹果香草菘饼 - 新鲜自制松饼牛奶、苹果" }
+                },
+                tuesday: {
+                    breakfast: { name: "Steamed Wholemeal Bun", desc: "Wholemeal Lotus Bun", cn: "蒸全麦包 - 全麦莲蓉包" },
+                    lunch: { name: "Bibimbap", desc: "Mixed Brown Rice, Chicken, Cucumber, Corn, Spinach, Carrots, Hard-Boiled Egg, Tomato Sesame Sauce", cn: "韩式拌饭 - 混合糙米、鸡肉、黄瓜、玉米、菠菜、胡萝卜、水煮蛋、番茄芝麻酱" },
+                    tea: { name: "Wholegrain Brussels Waffle", desc: "Wholegrain Brussels waffle, Egg, Applesauce", cn: "全谷物华夫饼配苹果酱" }
+                },
+                wednesday: {
+                    breakfast: { name: "Oats Porridge with Apples", desc: "Oats, Apples", cn: "苹果燕麦粥 - 燕麦、苹果" },
+                    lunch: { name: "Hearty Grilled Chicken Burrito Bowl", desc: "Mixed brown rice, Chicken, Corn, Tomatoes, Cucumber", cn: "墨西哥大碗饭 - 混合糙米饭、鸡肉、玉米、番茄、黄瓜" },
+                    tea: { name: "Scrambled Egg with Reduced Fat Cheese", desc: "Egg, Reduced Fat Cheese", cn: "芝士炒蛋 - 鸡蛋、低脂奶酪" }
+                },
+                thursday: {
+                    breakfast: { name: "Steamed Wholegrain Sweet Potato Mini Mantou", desc: "Wholegrain sweet potato bun", cn: "蒸全谷物红薯迷你馒头" },
+                    lunch: { name: "Pan-Fry Sweet & Sour Fish Rice", desc: "Mixed Brown Rice, Pan-Fry Fish, Tomatoes, Cucumber", cn: "香煎糖醋鱼饭 - 混合糙米、烤鱼、黄瓜、番茄" },
+                    tea: { name: "Sweet Corn Soup with Toast", desc: "Sweet Corn, Milk, Wholemeal Toast", cn: "甜玉米汤配吐司 - 甜玉米、牛奶、全麦吐司" }
+                },
+                friday: {
+                    breakfast: { name: "Wholemeal Strawberry Jam Sandwich", desc: "Wholemeal bread, Strawberry Jam", cn: "果酱三明治 - 全麦面包、草莓果酱" },
+                    lunch: { name: "Spaghetti Bolognese", desc: "Wholemeal Spaghetti, Homemade Tomato Sauce, Chicken, Tomatoes, Cabbage", cn: "肉酱意大利面 - 全麦意大利面，自制酱番茄酱、鸡肉、番茄、包菜" },
+                    tea: { name: "Yogurt with Fresh Fruits", desc: "Low-fat Yogurt, Fresh Fruits", cn: "酸奶配新鲜水果 - 低脂酸奶、新鲜水果" }
+                }
+            },
+            2: {
+                monday: {
+                    breakfast: { name: "Oats Porridge", desc: "Oats, Raisins", cn: "葡萄干燕麦粥 - 燕麦、葡萄干" },
+                    lunch: { name: "Vietnamese Macaroni Soup", desc: "Wholemeal Macaroni, Chicken, Corn, Carrot, Xiao Bai Chye", cn: "越南通心粉汤 - 通心粉、鸡肉、玉米、胡萝卜、小白菜" },
+                    tea: { name: "Omelette", desc: "Egg, Milk, Carrot, Mushrooms", cn: "煎蛋卷 - 鸡蛋、牛奶、胡萝卜、蘑菇" }
+                },
+                tuesday: {
+                    breakfast: { name: "Yogurt with Fresh Fruits", desc: "Low-fat Yogurt, Fresh Fruits", cn: "酸奶配新鲜水果 - 低脂酸奶、新鲜水果" },
+                    lunch: { name: "Golden Pumpkin Fish Porridge", desc: "Mixed Brown Rice, Fish, Pumpkin served with Stir-fried Cauliflower", cn: "黄金南瓜鱼粥 - 混合糙米、鱼、南瓜、花椰菜" },
+                    tea: { name: "Steamed Wholegrain Teriyaki Chicken Bun", desc: "Wholegrain Teriyaki Chicken Bun", cn: "蒸全谷物照烧鸡肉包" }
+                },
+                wednesday: {
+                    breakfast: { name: "Breakfast Cereals", desc: "Wholegrain Mixed Cereals, Raisins", cn: "早餐麦片 - 全麦混合谷物、葡萄干" },
+                    lunch: { name: "Nanyang Stir-Fry Vermicelli", desc: "Wholemeal vermicelli, Minced Chicken, Bean Curd Cubes, Cabbage, topped with Shredded Eggs", cn: "南洋炒米粉 - 全麦粉丝、鸡肉碎、豆腐块，白菜、鸡蛋丝" },
+                    tea: { name: "Pizza Toast", desc: "Wholemeal Bread, Tomato Paste, Mushroom and Reduced Fat Cheese", cn: "土司披萨 - 全麦披萨、番茄酱、蘑菇、低脂奶酪" }
+                },
+                thursday: {
+                    breakfast: { name: "Steamed Wholegrain Pandan Mini Mantou", desc: "Wholegrain Pandan bun", cn: "蒸全谷物班兰迷你馒头" },
+                    lunch: { name: "Traffic Light Spaghetti Aglio Olio", desc: "Wholemeal Spaghetti, Fish, Mushrooms, Tri-colour Capsicums, Tomatoes", cn: "炒意大利面条 - 全麦意大利面、鱼、蘑菇、三色灯笼椒、番茄" },
+                    tea: { name: "French Toast with Fresh Fruits", desc: "Wholemeal Bread, Soya Milk, Fresh fruits", cn: "法式吐司配新鲜水果 - 全麦面包、豆奶、新鲜水果" }
+                },
+                friday: {
+                    breakfast: { name: "Boiled Egg with Cherry Tomatoes", desc: "Hard Boiled Egg, Cherry Tomatoes, Soya Milk", cn: "樱桃番茄煮鸡蛋 - 水煮蛋、樱桃番茄、豆浆" },
+                    lunch: { name: "Hainanese Chicken Rice", desc: "Mixed brown rice, Ginger Chicken, Tomatoes, Cucumber served with Winter Melon, Cabbage and Wolfberry Soup", cn: "海南鸡饭 - 杂糙米、姜鸡、番茄、黄瓜配冬瓜白菜枸杞汤" },
+                    tea: { name: "Wholemeal Carrot Muffin", desc: "Wholemeal Flour, Carrot, Egg", cn: "全麦胡萝卜玛芬蛋糕 - 全麦面粉, 胡萝卜, 鸡蛋" }
+                }
+            },
+            3: {
+                monday: {
+                    breakfast: { name: "Breakfast Cereals", desc: "Wholegrain Mixed Cereals, Raisins", cn: "早餐麦片 - 全麦混合谷物、葡萄干" },
+                    lunch: { name: "Yummy Baked Teriyaki Chicken", desc: "Mixed Brown Rice served with Baked Chicken, Carrot and Broccoli", cn: "美味照烧鸡 - 混合糙米饭、搭配烤鸡肉、胡萝卜和西兰花" },
+                    tea: { name: "Scrambled Egg with Cheese", desc: "Egg, Cheese", cn: "芝士炒蛋 - 鸡蛋、奶酪" }
+                },
+                tuesday: {
+                    breakfast: { name: "Steamed Wholemeal Red Bean Bun", desc: "Wholemeal Red Bean Bun", cn: "蒸全谷物豆沙包 - 全谷物红豆沙包" },
+                    lunch: { name: "Comforting Sliced Fish Soup", desc: "Mixed Brown Rice Vermicelli, Fish Soup with Tofu, Tomatoes and Chye Sim", cn: "暖胃鱼片汤 - 混合糙米粉、鱼汤、豆腐、番茄、菜心" },
+                    tea: { name: "Wholegrain Apple Pancake", desc: "Freshly made Pancakes, Milk, Apple", cn: "苹果香草菘饼 - 新鲜自制松饼、牛奶、苹果" }
+                },
+                wednesday: {
+                    breakfast: { name: "Oats Porridge with Apples", desc: "Oats, Apples", cn: "苹果燕麦粥 - 燕麦、苹果" },
+                    lunch: { name: "Little Pot Chicken Stew", desc: "Mixed Brown Rice, Chicken Mushrooms, Carrots, Potatoes", cn: "小锅炖鸡 - 混合糙米饭、鸡肉蘑菇、胡萝卜、土豆" },
+                    tea: { name: "Boiled Egg with Cherry Tomatoes", desc: "Hard Boiled Egg, Cherry Tomatoes", cn: "樱桃番茄煮鸡蛋 - 水煮蛋、樱桃番茄" }
+                },
+                thursday: {
+                    breakfast: { name: "Steamed Wholegrain Honey Chicken Bun", desc: "Wholemeal Honey Chicken Bun", cn: "蒸全谷物蜂蜜鸡肉包" },
+                    lunch: { name: "Savoury Soy-Licious Stir-Fry Fish Pasta", desc: "Wholemeal pasta, Fish, Light Soy Sauce Glaze, served with Roasted Broccoli, and Carrots", cn: "酱香炒鱼意面 - 全麦意面、鱼肉、酱油调味、搭配烤西兰花和胡萝卜" },
+                    tea: { name: "Wholegrain Bread with Dhal Dip", desc: "Wholegrain Toast, Lentil Puree", cn: "全麦面包配扁豆酱 - 全麦烤面包、扁豆蘸酱" }
+                },
+                friday: {
+                    breakfast: { name: "Wholemeal Strawberry Jam Sandwich", desc: "Wholemeal bread, Strawberry Jam", cn: "果酱三明治 - 全麦面包、草莓果酱" },
+                    lunch: { name: "Bee Hoon Soto", desc: "Wholemeal vermicelli, Chicken, Hard-boiled egg, Xiao Bai Chye served with Soup with Aromatic Spice", cn: "马来式鸡汤米粉 - 全麦米粉、鸡肉、水煮蛋、小白菜、搭配香料汤" },
+                    tea: { name: "Wholemeal Banana Muffin", desc: "Wholemeal Flour, Banana, Egg", cn: "全麦香蕉玛芬蛋糕 - 全麦面粉、香蕉、鸡蛋" }
+                }
+            },
+            4: {
+                monday: {
+                    breakfast: { name: "Steamed Wholegrain Honey Chicken Bun", desc: "Wholegrain Honey Chicken Bun", cn: "蒸全谷物蜂蜜鸡肉包" },
+                    lunch: { name: "Nourishing ABC Soup", desc: "Mixed Brown Rice, Chicken, Tomatoes, Carrot, Potatoes, Onions", cn: "滋补ABC汤 - 混合糙米饭、鸡肉、番茄、胡萝卜、土豆、洋葱" },
+                    tea: { name: "Omelette", desc: "Egg, Milk, Carrot, Mushrooms", cn: "煎蛋卷 - 鸡蛋、牛奶、胡萝卜、蘑菇" }
+                },
+                tuesday: {
+                    breakfast: { name: "Yogurt with Raisins", desc: "Low-fat Yogurt, Raisins", cn: "酸奶配葡萄干 - 低脂酸奶、葡萄干" },
+                    lunch: { name: "Stir-Fry Fish Fusilli", desc: "Wholemeal Fusilli Pasta, Fish, Spinach, Mushrooms, Carrots", cn: "香炒鱼肉螺旋面 - 全麦螺旋面、鱼、菠菜、蘑菇、胡萝卜" },
+                    tea: { name: "Wholegrain Banana Pancake", desc: "Freshly-made Pancake, Milk, Banana", cn: "香蕉松饼 - 新鲜自制松饼、牛奶、香蕉" }
+                },
+                wednesday: {
+                    breakfast: { name: "Wholemeal Strawberry Jam Sandwich", desc: "Wholemeal bread, Strawberry Jam", cn: "果酱三明治 - 全麦面包、草莓果酱" },
+                    lunch: { name: "Tau Eu Kay (Braised Chicken in Soy Sauce)", desc: "Mixed Brown Rice, Chicken, Hard Boiled Eggs, Bean Curd, Mushrooms, Carrots", cn: "酱油鸡 - 混合糙米饭、鸡肉、水煮蛋、豆腐、蘑菇、胡萝卜" },
+                    tea: { name: "Pizza Toast", desc: "Wholemeal Bread, Tomato Paste, Mushroom and Reduced Fat Cheese", cn: "土司披萨 - 全麦披萨、番茄酱、蘑菇、低脂奶酪" }
+                },
+                thursday: {
+                    breakfast: { name: "Breakfast Cereals", desc: "Wholegrain Mixed Cereals, Fresh Fruits", cn: "早餐麦片 - 全麦混合谷物、新鲜水果" },
+                    lunch: { name: "Tomato Sauce Tuna Spaghetti", desc: "Wholemeal Spaghetti, Tuna, Tomato-based Sauce serve with Roasted Carrot and Broccoli", cn: "番茄酱金枪鱼意大利面 - 全麦意大利面、金枪鱼、番茄酱搭配烤胡萝卜和西兰花" },
+                    tea: { name: "French Toast with Fresh Fruits", desc: "Wholemeal Bread, Egg, Fresh fruits", cn: "法式吐司配新鲜水果 - 全麦面包、鸡蛋、水果" }
+                },
+                friday: {
+                    breakfast: { name: "Steamed Wholegrain Sweet Potato Mini Mantou", desc: "Wholegrain sweet potato bun, Soya Milk", cn: "蒸全谷物红薯迷你馒头、豆浆" },
+                    lunch: { name: "Oriental Fried Rice", desc: "Mixed Brown Rice, French Beans, Carrots, Shredded Eggs served with Lotus Root and Wolfberry Chicken Soup", cn: "中式炒饭 - 混合糙米饭、四季豆、胡萝卜丝、鸡蛋丝搭配莲藕枸杞鸡汤" },
+                    tea: { name: "Wholegrain Brussels Waffle with Applesauce", desc: "Wholegrain Brussels Waffle, Egg, Applesauce", cn: "全谷物华夫饼配苹果酱 - 全谷物华夫饼、鸡蛋、苹果酱" }
+                }
+            },
+            5: {
+                monday: {
+                    breakfast: { name: "Steamed Wholegrain Pandan Mini Mantou", desc: "Wholegrain Pandan bun", cn: "蒸全谷物班兰迷你馒头" },
+                    lunch: { name: "Juicy Grilled Chicken Chop", desc: "Grilled Chicken Chop served with Mushroom Sauce, Carrots, Broccoli and Pasta", cn: "多汁烤鸡排 - 烤鸡排配蘑菇酱、胡萝卜、西兰花和意大利面" },
+                    tea: { name: "Yogurt with Fresh Fruits", desc: "Low-fat Yogurt, Fresh Fruits", cn: "酸奶配新鲜水果 - 低脂酸奶、新鲜水果" }
+                },
+                tuesday: {
+                    breakfast: { name: "Oats Porridge with Apples", desc: "Oats, Apples", cn: "苹果燕麦粥 - 燕麦、苹果" },
+                    lunch: { name: "Comforting Sliced Fish Soup", desc: "Mixed Brown Rice Vermicelli, Fish Soup with Tofu, Tomatoes and Chye Sim", cn: "暖胃鱼片汤 - 混合糙米粉、鱼汤、豆腐、番茄、菜心" },
+                    tea: { name: "Wholegrain Corn Pancake", desc: "Freshly made Pancakes, Milk, Corn", cn: "全谷物玉米菘饼 - 新鲜自制松饼、牛奶、玉米" }
+                },
+                wednesday: {
+                    breakfast: { name: "Wholemeal Strawberry Jam Sandwich", desc: "Wholemeal bread, Strawberry Jam", cn: "果酱三明治 - 全麦面包、草莓果酱" },
+                    lunch: { name: "Hainanese Chicken Rice", desc: "Mixed brown rice, Ginger Chicken, Tomatoes, Cucumber served with Winter Melon, Cabbage and Wolfberry Soup", cn: "海南鸡饭 - 混合糙米饭、姜腌鸡肉、番茄、黄瓜搭配冬瓜白菜枸杞汤" },
+                    tea: { name: "Classic Creamy Pumpkin Carrot Soup", desc: "Pumpkin, Carrot, Onion, Garlic, Croutons", cn: "经典奶油南瓜胡萝卜汤 - 南瓜、胡萝卜、洋葱、大蒜配烤全麦面包块" }
+                },
+                thursday: {
+                    breakfast: { name: "Breakfast Cereals", desc: "Wholegrain Mixed Cereals with Golden Raisins", cn: "早餐麦片 - 全麦混合谷物、金葡萄干" },
+                    lunch: { name: "Ipoh Claypot Hor Fun", desc: "Wholemeal noodles, Chicken, Mushrooms, Chye Sim", cn: "怡保砂锅河粉 - 全麦面条、鸡肉、蘑菇、菜心" },
+                    tea: { name: "Steamed Wholemeal Red Bean Bun", desc: "Wholemeal Red Bean Bun", cn: "蒸全谷物豆沙包 - 全谷物红豆沙包" }
+                },
+                friday: {
+                    breakfast: { name: "Boiled Egg with Cherry Tomatoes", desc: "Hard Boiled Egg, Cherry Tomatoes", cn: "樱桃番茄煮鸡蛋 - 水煮蛋、樱桃番茄" },
+                    lunch: { name: "Pan-Fry Teriyaki Fish Pasta", desc: "Wholemeal pasta, Fish, served with Roasted Cauliflower and Carrot", cn: "香煎照烧鱼意大利面 - 全麦意大利面、鱼、配烤花椰菜和胡萝卜" },
+                    tea: { name: "Steamed Wholegrain Honey Chicken Bun", desc: "Wholemeal Honey Chicken Bun", cn: "蒸全谷物蜂蜜鸡肉包" }
+                }
+            }
+        };
+
+        const scheduleData = [
+            { time: "7:00am", hour: 7, min: 0, activity: "Arrival / Health Check" },
+            { time: "8:00am", hour: 8, min: 0, activity: "My Time" },
+            { time: "8:30am", hour: 8, min: 30, activity: "Eat the World", meal: "breakfast" },
+            { time: "9:00am", hour: 9, min: 0, activities: { 0: "Trikes/Bikes", 1: "Sand Play", 2: "Water Play", 3: "Fun & Move", 4: "Playground/Nature Walk" } },
+            { time: "9:30am", hour: 9, min: 30, activities: { 0: "Changemakers", 1: "Changemakers", 2: "Shower Time", 3: "Changemakers", 4: "Changemakers" } },
+            { time: "10:00am", hour: 10, min: 0, activity: "Real World" },
+            { time: "10:30am", hour: 10, min: 30, activity: "Music Around the World" },
+            { time: "11:00am", hour: 11, min: 0, activity: "Eat the World", meal: "lunch" },
+            { time: "11:30am", hour: 11, min: 30, activities: { 0: "Project Time", 1: "Play Station", 2: "Play Station", 3: "Play Station", 4: "Project Time" } },
+            { time: "12:00pm", hour: 12, min: 0, activity: "Routine Care / My Time" },
+            { time: "12:45pm", hour: 12, min: 45, activity: "Nap Time" },
+            { time: "2:45pm", hour: 14, min: 45, activity: "Routine Care" },
+            { time: "3:00pm", hour: 15, min: 0, activity: "Eat the World", meal: "tea" },
+            { time: "3:30pm", hour: 15, min: 30, activities: { 0: "Junior Maker House", 1: "Project Time", 2: "Junior Theatre House", 3: "Junior Art House", 4: "Junior G.E.M.S House" } },
+            { time: "4:15pm", hour: 16, min: 15, activity: "Urban Wellness" },
+            { time: "5:00pm", hour: 17, min: 0, activity: "My Time" },
+            { time: "5:30pm", hour: 17, min: 30, activity: "Dismissal (FD 1)" },
+            { time: "7:00pm", hour: 19, min: 0, activity: "Dismissal (FD 2)" }
+        ];
+
+        const holidays = [
+            { name: "New Year's Day", date: "1 January", day: "Thursday", type: "Public Holiday" },
+            { name: "Eve of Chinese New Year", date: "16 February", day: "Monday", type: "Closes at 3pm" },
+            { name: "Chinese New Year", date: "17-18 February", day: "Tue-Wed", type: "Public Holiday" },
+            { name: "Development Day", date: "13 March", day: "Friday", type: "Childcare Closure" },
+            { name: "Hari Raya Puasa", date: "21 March", day: "Saturday", type: "Public Holiday" },
+            { name: "Good Friday", date: "3 April", day: "Friday", type: "Public Holiday" },
+            { name: "Labour Day", date: "1 May", day: "Friday", type: "Public Holiday" },
+            { name: "Hari Raya Haji", date: "27 May", day: "Wednesday", type: "Public Holiday" },
+            { name: "Vesak Day", date: "31 May", day: "Sunday", type: "Public Holiday" },
+            { name: "Vesak Day (Off In Lieu)", date: "1 June", day: "Monday", type: "Public Holiday" },
+            { name: "Development Day", date: "17 July", day: "Friday", type: "Childcare Closure" },
+            { name: "National Day", date: "9 August", day: "Sunday", type: "Public Holiday" },
+            { name: "National Day (Off In Lieu)", date: "10 August", day: "Monday", type: "Public Holiday" },
+            { name: "Development Day", date: "24 August", day: "Monday", type: "Childcare Closure" },
+            { name: "Teachers' Day", date: "4 September", day: "Friday", type: "Childcare Closure" },
+            { name: "Children's Day", date: "2 October", day: "Friday", type: "Childcare Closure" },
+            { name: "Deepavali", date: "8 November", day: "Sunday", type: "Public Holiday" },
+            { name: "Deepavali (Off In Lieu)", date: "9 November", day: "Monday", type: "Public Holiday" },
+            { name: "K2 Concert Day", date: "18-20 November", day: "One day", type: "Childcare Closure" },
+            { name: "Development Day", date: "17 December", day: "Thursday", type: "Childcare Closure" },
+            { name: "Development Day", date: "18 December", day: "Friday", type: "Childcare Closure" },
+            { name: "Christmas Day", date: "25 December", day: "Friday", type: "Public Holiday" },
+            { name: "Eve of New Year", date: "31 December", day: "Thursday", type: "Closes at 3pm" }
+        ];
+
+        let currentWeek = 1;
+        let currentDay = 0;
+        let viewingDay = 'today'; // 'today' or 'tomorrow'
+
+        function getCurrentMenuWeek(date) {
+            const weekSchedules = [
+                // Week 1
+                [[2026,0,5], [2026,0,9]], [[2026,1,2], [2026,1,6]], [[2026,2,2], [2026,2,6]], [[2026,2,30], [2026,3,3]],
+                [[2026,4,4], [2026,4,8]], [[2026,5,1], [2026,5,5]], [[2026,5,29], [2026,6,3]], [[2026,7,3], [2026,7,7]],
+                [[2026,7,31], [2026,8,4]], [[2026,9,5], [2026,9,9]], [[2026,10,2], [2026,10,6]], [[2026,10,30], [2026,11,4]],
+                // Week 2
+                [[2026,0,12], [2026,0,16]], [[2026,1,9], [2026,1,13]], [[2026,2,9], [2026,2,13]], [[2026,3,6], [2026,3,10]],
+                [[2026,4,11], [2026,4,15]], [[2026,5,8], [2026,5,12]], [[2026,6,6], [2026,6,10]], [[2026,7,10], [2026,7,14]],
+                [[2026,8,7], [2026,8,11]], [[2026,9,12], [2026,9,16]], [[2026,10,9], [2026,10,13]], [[2026,11,7], [2026,11,11]],
+                // Week 3
+                [[2026,0,19], [2026,0,23]], [[2026,1,16], [2026,1,20]], [[2026,2,16], [2026,2,20]], [[2026,3,13], [2026,3,17]],
+                [[2026,4,18], [2026,4,22]], [[2026,5,15], [2026,5,19]], [[2026,6,13], [2026,6,17]], [[2026,7,17], [2026,7,21]],
+                [[2026,8,14], [2026,8,18]], [[2026,9,19], [2026,9,23]], [[2026,10,16], [2026,10,20]], [[2026,11,14], [2026,11,18]],
+                // Week 4
+                [[2026,0,26], [2026,0,30]], [[2026,1,23], [2026,1,27]], [[2026,2,23], [2026,2,27]], [[2026,3,20], [2026,3,24]],
+                [[2026,4,25], [2026,4,29]], [[2026,5,22], [2026,5,26]], [[2026,6,20], [2026,6,24]], [[2026,7,24], [2026,7,28]],
+                [[2026,8,21], [2026,8,25]], [[2026,9,26], [2026,9,30]], [[2026,10,23], [2026,10,27]], [[2026,11,21], [2026,11,25]],
+                // Week 5
+                [[2026,3,27], [2026,4,1]], [[2026,6,27], [2026,6,31]], [[2026,8,28], [2026,9,2]], [[2026,11,28], [2026,11,31]]
+            ];
+
+            for (let i = 0; i < 12; i++) {
+                const [s, e] = weekSchedules[i];
+                if (date >= new Date(s[0], s[1], s[2]) && date <= new Date(e[0], e[1], e[2])) return 1;
+            }
+            for (let i = 12; i < 24; i++) {
+                const [s, e] = weekSchedules[i];
+                if (date >= new Date(s[0], s[1], s[2]) && date <= new Date(e[0], e[1], e[2])) return 2;
+            }
+            for (let i = 24; i < 36; i++) {
+                const [s, e] = weekSchedules[i];
+                if (date >= new Date(s[0], s[1], s[2]) && date <= new Date(e[0], e[1], e[2])) return 3;
+            }
+            for (let i = 36; i < 48; i++) {
+                const [s, e] = weekSchedules[i];
+                if (date >= new Date(s[0], s[1], s[2]) && date <= new Date(e[0], e[1], e[2])) return 4;
+            }
+            for (let i = 48; i < weekSchedules.length; i++) {
+                const [s, e] = weekSchedules[i];
+                if (date >= new Date(s[0], s[1], s[2]) && date <= new Date(e[0], e[1], e[2])) return 5;
+            }
+
+            // Fallback
+            const startOfYear = new Date(date.getFullYear(), 0, 1);
+            const weekNum = Math.ceil((date - startOfYear) / (7 * 24 * 60 * 60 * 1000));
+            return ((weekNum - 1) % 5) + 1;
+        }
+
+        function getCurrentTimeSlot() {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            for (let i = scheduleData.length - 1; i >= 0; i--) {
+                const slotMinutes = scheduleData[i].hour * 60 + scheduleData[i].min;
+                if (currentMinutes >= slotMinutes) {
+                    return i;
+                }
+            }
+            return -1; // Before school starts
+        }
+
+        function getCurrentMeal() {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            // Breakfast: 8:30 - 9:00
+            if (currentMinutes >= 510 && currentMinutes < 540) return 'breakfast';
+            // Lunch: 11:00 - 11:30
+            if (currentMinutes >= 660 && currentMinutes < 690) return 'lunch';
+            // Tea: 15:00 - 15:30
+            if (currentMinutes >= 900 && currentMinutes < 930) return 'tea';
+
+            return null;
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showDayView(day) {
+            viewingDay = day;
+            document.getElementById('btn-today').classList.toggle('active', day === 'today');
+            document.getElementById('btn-tomorrow').classList.toggle('active', day === 'tomorrow');
+            renderDaySchedule();
+        }
+
+        function showWeek(week) {
+            currentWeek = week;
+            document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMenu();
+        }
+
+        function showDay(day) {
+            currentDay = day;
+            document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMenu();
+        }
+
+        function renderDaySchedule() {
+            const today = new Date();
+            const targetDate = viewingDay === 'tomorrow' ? new Date(today.getTime() + 24 * 60 * 60 * 1000) : today;
+            const dayOfWeek = targetDate.getDay();
+            const dayIndex = dayOfWeek === 0 || dayOfWeek === 6 ? -1 : dayOfWeek - 1;
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+            const isToday = viewingDay === 'today';
+            const currentSlot = isToday ? getCurrentTimeSlot() : -1;
+
+            // Update titles
+            document.getElementById('schedule-title').textContent = isToday ? "Today's Schedule" : "Tomorrow's Schedule";
+
+            if (dayIndex === -1) {
+                const dayName = dayNames[dayOfWeek];
+                document.getElementById('menu-week-info').textContent = '';
+                document.getElementById('day-schedule').innerHTML = `
+                    <div class="weekend-message">
+                        <div class="icon">🌴</div>
+                        <p>No school on ${dayName}!</p>
+                    </div>`;
+                return;
+            }
+
+            // Get menu for the day
+            const menuWeek = getCurrentMenuWeek(targetDate);
+            const dayKey = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'][dayIndex];
+            const dayMenu = menuData[menuWeek][dayKey];
+
+            document.getElementById('menu-week-info').textContent = `Week ${menuWeek} Menu · ${dayNames[dayOfWeek]}`;
+
+            // Render schedule with integrated meals
+            let html = '';
+            scheduleData.forEach((item, index) => {
+                const activity = item.activity || item.activities[dayIndex];
+                const isCurrent = isToday && index === currentSlot;
+                const isPast = isToday && index < currentSlot;
+                const mealType = item.meal;
+
+                let classes = 'schedule-item';
+                if (isCurrent) classes += ' current';
+                if (isPast) classes += ' past';
+
+                let activityHtml = '';
+                if (mealType && dayMenu[mealType]) {
+                    const meal = dayMenu[mealType];
+                    const mealLabel = mealType === 'breakfast' ? 'Breakfast' : mealType === 'lunch' ? 'Lunch' : 'Tea';
+                    activityHtml = `<div class="schedule-activity meal">
+                        <div class="meal-inline">
+                            <div class="meal-type">${mealLabel}</div>
+                            <div class="meal-name">${meal.name}</div>
+                            <div class="meal-desc">${meal.desc}</div>
+                            <div class="meal-chinese">${meal.cn}</div>
+                        </div>
+                    </div>`;
+                } else {
+                    activityHtml = `<div class="schedule-activity">${activity}</div>`;
+                }
+
+                html += `<div class="${classes}">
+                    <div class="schedule-time">${item.time}</div>
+                    ${activityHtml}
+                    ${isCurrent ? '<span class="now-badge">Now</span>' : ''}
+                </div>`;
+            });
+            document.getElementById('day-schedule').innerHTML = html;
+
+            // Scroll to current activity
+            if (isToday && currentSlot >= 0) {
+                setTimeout(() => {
+                    const currentEl = document.querySelector('.schedule-item.current');
+                    if (currentEl) {
+                        currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            }
+        }
+
+        function renderMealCard(title, meal, isCurrent = false) {
+            return `<div class="meal-card${isCurrent ? ' current-meal' : ''}">
+                <h3>${title}${isCurrent ? '<span class="now-badge">Now</span>' : ''}</h3>
+                <div class="meal-name">${meal.name}</div>
+                <div class="meal-desc">${meal.desc}</div>
+                <div class="meal-chinese">${meal.cn}</div>
+            </div>`;
+        }
+
+        function renderMenu() {
+            const dayKey = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'][currentDay];
+            const dayMenu = menuData[currentWeek][dayKey];
+
+            let html = renderMealCard('Breakfast (8:30am)', dayMenu.breakfast);
+            html += renderMealCard('Lunch (11:00am)', dayMenu.lunch);
+            html += renderMealCard('Tea (3:00pm)', dayMenu.tea);
+
+            document.getElementById('menu-content').innerHTML = html;
+        }
+
+        function renderHolidays() {
+            let html = '';
+            holidays.forEach(h => {
+                const typeClass = h.type.includes('Closes') ? 'early' : (h.type !== 'Public Holiday' ? 'closure' : '');
+                html += `<div class="holiday-item">
+                    <div>
+                        <div class="holiday-name">${h.name}</div>
+                        <div class="holiday-date">${h.date} (${h.day})</div>
+                    </div>
+                    <span class="holiday-type ${typeClass}">${h.type}</span>
+                </div>`;
+            });
+            document.getElementById('holidays-list').innerHTML = html;
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+            document.getElementById('date-display').textContent =
+                `${dayNames[now.getDay()]}, ${now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
+            document.getElementById('time-display').textContent =
+                now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Initialize
+        updateTime();
+        setInterval(updateTime, 1000);
+        setInterval(() => {
+            if (viewingDay === 'today') {
+                renderDaySchedule();
+            }
+        }, 60000); // Update every minute
+
+        renderDaySchedule();
+        renderMenu();
+        renderHolidays();
+    </script>
+</body>
+</html>
