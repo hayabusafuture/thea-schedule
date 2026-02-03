@@ -40,21 +40,6 @@
             font-size: 1.1rem;
         }
 
-        .today-info {
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            padding: 10px 20px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .current-time {
-            display: block;
-            font-size: 0.9rem;
-            margin-top: 5px;
-            opacity: 0.9;
-        }
-
         .tabs {
             display: flex;
             gap: 8px;
@@ -464,6 +449,89 @@
             margin-bottom: 15px;
         }
 
+        /* Date Picker */
+        .date-picker-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .date-picker-row label {
+            font-size: 0.9rem;
+            color: white;
+            font-weight: 500;
+        }
+
+        .date-picker-row input[type="date"] {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .date-picker-row input[type="date"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+
+        .reset-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #667eea;
+            transition: all 0.3s;
+        }
+
+        .reset-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Week Alert Bar */
+        .week-alert {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+            border-left: 4px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .week-alert.closure {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c2c7 100%);
+            border-left-color: #dc3545;
+        }
+
+        .week-alert-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .week-alert-items {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .week-alert-items li {
+            margin: 3px 0;
+        }
+
+        .week-alert-date {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
             body {
@@ -566,10 +634,6 @@
         <header>
             <h1>Thea's School Day</h1>
             <p>The Schoolhouse - Sweet Peas 2026</p>
-            <div class="today-info" id="today-info">
-                <span id="date-display"></span>
-                <span class="current-time" id="time-display"></span>
-            </div>
         </header>
 
         <div class="tabs">
@@ -586,9 +650,16 @@
                 <button class="day-toggle-btn" id="btn-tomorrow" onclick="showDayView('tomorrow')">Tomorrow</button>
             </div>
 
+            <div class="date-picker-row">
+                <label for="date-picker">Jump to date:</label>
+                <input type="date" id="date-picker" min="2026-01-01" max="2026-12-31">
+                <button class="reset-btn" onclick="resetToToday()">Back to Today</button>
+            </div>
+
             <div class="card">
                 <h2><span class="icon">📅</span> <span id="schedule-title">Today's Schedule</span></h2>
                 <p id="menu-week-info" style="color:#666;font-size:0.85rem;margin:-10px 0 15px 0;"></p>
+                <div id="week-alerts"></div>
                 <div id="day-schedule"></div>
             </div>
         </div>
@@ -623,8 +694,7 @@
                         <tr><td>3:30pm</td><td>Junior Maker House</td><td>Project Time</td><td>Junior Theatre House</td><td>Junior Art House</td><td>Junior G.E.M.S House</td></tr>
                         <tr><td>4:15pm</td><td colspan="5" style="text-align:center">Urban Wellness</td></tr>
                         <tr><td>5:00pm</td><td colspan="5" style="text-align:center">My Time</td></tr>
-                        <tr><td>5:30pm</td><td colspan="5" style="text-align:center">Dismissal (FD 1)</td></tr>
-                        <tr><td>7:00pm</td><td colspan="5" style="text-align:center">Dismissal (FD 2)</td></tr>
+                        <tr><td>5:30pm</td><td colspan="5" style="text-align:center">Dismissal</td></tr>
                     </table>
                 </div>
             </div>
@@ -820,39 +890,39 @@
             { time: "3:30pm", hour: 15, min: 30, activities: { 0: "Junior Maker House", 1: "Project Time", 2: "Junior Theatre House", 3: "Junior Art House", 4: "Junior G.E.M.S House" } },
             { time: "4:15pm", hour: 16, min: 15, activity: "Urban Wellness" },
             { time: "5:00pm", hour: 17, min: 0, activity: "My Time" },
-            { time: "5:30pm", hour: 17, min: 30, activity: "Dismissal (FD 1)" },
-            { time: "7:00pm", hour: 19, min: 0, activity: "Dismissal (FD 2)" }
+            { time: "5:30pm", hour: 17, min: 30, activity: "Dismissal" }
         ];
 
         const holidays = [
-            { name: "New Year's Day", date: "1 January", day: "Thursday", type: "Public Holiday" },
-            { name: "Eve of Chinese New Year", date: "16 February", day: "Monday", type: "Closes at 3pm" },
-            { name: "Chinese New Year", date: "17-18 February", day: "Tue-Wed", type: "Public Holiday" },
-            { name: "Development Day", date: "13 March", day: "Friday", type: "Childcare Closure" },
-            { name: "Hari Raya Puasa", date: "21 March", day: "Saturday", type: "Public Holiday" },
-            { name: "Good Friday", date: "3 April", day: "Friday", type: "Public Holiday" },
-            { name: "Labour Day", date: "1 May", day: "Friday", type: "Public Holiday" },
-            { name: "Hari Raya Haji", date: "27 May", day: "Wednesday", type: "Public Holiday" },
-            { name: "Vesak Day", date: "31 May", day: "Sunday", type: "Public Holiday" },
-            { name: "Vesak Day (Off In Lieu)", date: "1 June", day: "Monday", type: "Public Holiday" },
-            { name: "Development Day", date: "17 July", day: "Friday", type: "Childcare Closure" },
-            { name: "National Day", date: "9 August", day: "Sunday", type: "Public Holiday" },
-            { name: "National Day (Off In Lieu)", date: "10 August", day: "Monday", type: "Public Holiday" },
-            { name: "Development Day", date: "24 August", day: "Monday", type: "Childcare Closure" },
-            { name: "Teachers' Day", date: "4 September", day: "Friday", type: "Childcare Closure" },
-            { name: "Children's Day", date: "2 October", day: "Friday", type: "Childcare Closure" },
-            { name: "Deepavali", date: "8 November", day: "Sunday", type: "Public Holiday" },
-            { name: "Deepavali (Off In Lieu)", date: "9 November", day: "Monday", type: "Public Holiday" },
-            { name: "K2 Concert Day", date: "18-20 November", day: "One day", type: "Childcare Closure" },
-            { name: "Development Day", date: "17 December", day: "Thursday", type: "Childcare Closure" },
-            { name: "Development Day", date: "18 December", day: "Friday", type: "Childcare Closure" },
-            { name: "Christmas Day", date: "25 December", day: "Friday", type: "Public Holiday" },
-            { name: "Eve of New Year", date: "31 December", day: "Thursday", type: "Closes at 3pm" }
+            { name: "New Year's Day", date: "1 January", day: "Thursday", type: "Public Holiday", dates: [[2026,0,1]] },
+            { name: "Eve of Chinese New Year", date: "16 February", day: "Monday", type: "Closes at 3pm", dates: [[2026,1,16]] },
+            { name: "Chinese New Year", date: "17-18 February", day: "Tue-Wed", type: "Public Holiday", dates: [[2026,1,17], [2026,1,18]] },
+            { name: "Development Day", date: "13 March", day: "Friday", type: "Childcare Closure", dates: [[2026,2,13]] },
+            { name: "Hari Raya Puasa", date: "21 March", day: "Saturday", type: "Public Holiday", dates: [[2026,2,21]] },
+            { name: "Good Friday", date: "3 April", day: "Friday", type: "Public Holiday", dates: [[2026,3,3]] },
+            { name: "Labour Day", date: "1 May", day: "Friday", type: "Public Holiday", dates: [[2026,4,1]] },
+            { name: "Hari Raya Haji", date: "27 May", day: "Wednesday", type: "Public Holiday", dates: [[2026,4,27]] },
+            { name: "Vesak Day", date: "31 May", day: "Sunday", type: "Public Holiday", dates: [[2026,4,31]] },
+            { name: "Vesak Day (Off In Lieu)", date: "1 June", day: "Monday", type: "Public Holiday", dates: [[2026,5,1]] },
+            { name: "Development Day", date: "17 July", day: "Friday", type: "Childcare Closure", dates: [[2026,6,17]] },
+            { name: "National Day", date: "9 August", day: "Sunday", type: "Public Holiday", dates: [[2026,7,9]] },
+            { name: "National Day (Off In Lieu)", date: "10 August", day: "Monday", type: "Public Holiday", dates: [[2026,7,10]] },
+            { name: "Development Day", date: "24 August", day: "Monday", type: "Childcare Closure", dates: [[2026,7,24]] },
+            { name: "Teachers' Day", date: "4 September", day: "Friday", type: "Childcare Closure", dates: [[2026,8,4]] },
+            { name: "Children's Day", date: "2 October", day: "Friday", type: "Childcare Closure", dates: [[2026,9,2]] },
+            { name: "Deepavali", date: "8 November", day: "Sunday", type: "Public Holiday", dates: [[2026,10,8]] },
+            { name: "Deepavali (Off In Lieu)", date: "9 November", day: "Monday", type: "Public Holiday", dates: [[2026,10,9]] },
+            { name: "K2 Concert Day", date: "18-20 November", day: "One day", type: "Childcare Closure", dates: [[2026,10,18], [2026,10,19], [2026,10,20]] },
+            { name: "Development Day", date: "17 December", day: "Thursday", type: "Childcare Closure", dates: [[2026,11,17]] },
+            { name: "Development Day", date: "18 December", day: "Friday", type: "Childcare Closure", dates: [[2026,11,18]] },
+            { name: "Christmas Day", date: "25 December", day: "Friday", type: "Public Holiday", dates: [[2026,11,25]] },
+            { name: "Eve of New Year", date: "31 December", day: "Thursday", type: "Closes at 3pm", dates: [[2026,11,31]] }
         ];
 
         let currentWeek = 1;
         let currentDay = 0;
-        let viewingDay = 'today'; // 'today' or 'tomorrow'
+        let viewingDay = 'today'; // 'today', 'tomorrow', or 'custom'
+        let customDate = null; // Used when viewingDay is 'custom'
 
         function getCurrentMenuWeek(date) {
             const weekSchedules = [
@@ -939,9 +1009,110 @@
 
         function showDayView(day) {
             viewingDay = day;
+            customDate = null;
             document.getElementById('btn-today').classList.toggle('active', day === 'today');
             document.getElementById('btn-tomorrow').classList.toggle('active', day === 'tomorrow');
+            document.getElementById('date-picker').value = '';
             renderDaySchedule();
+        }
+
+        function jumpToDate(dateStr) {
+            if (!dateStr) return;
+            const [year, month, day] = dateStr.split('-').map(Number);
+            customDate = new Date(year, month - 1, day);
+            viewingDay = 'custom';
+            document.getElementById('btn-today').classList.remove('active');
+            document.getElementById('btn-tomorrow').classList.remove('active');
+            renderDaySchedule();
+        }
+
+        function resetToToday() {
+            viewingDay = 'today';
+            customDate = null;
+            document.getElementById('btn-today').classList.add('active');
+            document.getElementById('btn-tomorrow').classList.remove('active');
+            document.getElementById('date-picker').value = '';
+            renderDaySchedule();
+        }
+
+        function getHolidayForDate(targetDate) {
+            const targetTime = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()).getTime();
+
+            for (const holiday of holidays) {
+                for (const d of holiday.dates) {
+                    const holidayTime = new Date(d[0], d[1], d[2]).getTime();
+                    if (holidayTime === targetTime) {
+                        const isClosure = holiday.type === 'Childcare Closure' || holiday.type === 'Public Holiday';
+                        return { ...holiday, isClosure };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function getWeekAlerts(targetDate) {
+            // Get the Monday of the week containing targetDate
+            const dayOfWeek = targetDate.getDay();
+            const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            const monday = new Date(targetDate);
+            monday.setDate(targetDate.getDate() + mondayOffset);
+            monday.setHours(0, 0, 0, 0);
+
+            const friday = new Date(monday);
+            friday.setDate(monday.getDate() + 4);
+            friday.setHours(23, 59, 59, 999);
+
+            const alerts = [];
+            holidays.forEach(holiday => {
+                holiday.dates.forEach(d => {
+                    const holidayDate = new Date(d[0], d[1], d[2]);
+                    if (holidayDate >= monday && holidayDate <= friday) {
+                        const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][holidayDate.getDay()];
+                        alerts.push({
+                            name: holiday.name,
+                            type: holiday.type,
+                            date: holiday.date,
+                            dayName: dayName,
+                            isClosure: holiday.type === 'Childcare Closure' || holiday.type === 'Public Holiday'
+                        });
+                    }
+                });
+            });
+
+            // Remove duplicates (for multi-day holidays)
+            const seen = new Set();
+            return alerts.filter(a => {
+                const key = a.name + a.date;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function renderWeekAlerts(targetDate) {
+            const alerts = getWeekAlerts(targetDate);
+            const container = document.getElementById('week-alerts');
+
+            if (alerts.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const hasClosures = alerts.some(a => a.isClosure);
+            const alertClass = hasClosures ? 'week-alert closure' : 'week-alert';
+            const icon = hasClosures ? '⚠️' : 'ℹ️';
+            const title = hasClosures ? 'Closures / Holidays This Week' : 'Special Events This Week';
+
+            let html = `<div class="${alertClass}">
+                <div class="week-alert-title">${icon} ${title}</div>
+                <ul class="week-alert-items">`;
+
+            alerts.forEach(a => {
+                html += `<li><strong>${a.name}</strong> <span class="week-alert-date">(${a.date} - ${a.type})</span></li>`;
+            });
+
+            html += '</ul></div>';
+            container.innerHTML = html;
         }
 
         function showWeek(week) {
@@ -960,7 +1131,14 @@
 
         function renderDaySchedule() {
             const today = new Date();
-            const targetDate = viewingDay === 'tomorrow' ? new Date(today.getTime() + 24 * 60 * 60 * 1000) : today;
+            let targetDate;
+            if (viewingDay === 'custom' && customDate) {
+                targetDate = customDate;
+            } else if (viewingDay === 'tomorrow') {
+                targetDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+            } else {
+                targetDate = today;
+            }
             const dayOfWeek = targetDate.getDay();
             const dayIndex = dayOfWeek === 0 || dayOfWeek === 6 ? -1 : dayOfWeek - 1;
             const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -968,9 +1146,20 @@
             const isToday = viewingDay === 'today';
             const currentSlot = isToday ? getCurrentTimeSlot() : -1;
 
-            // Update titles
-            document.getElementById('schedule-title').textContent = isToday ? "Today's Schedule" : "Tomorrow's Schedule";
+            // Update title with date
+            const dateStr = targetDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+            let titlePrefix = '';
+            if (viewingDay === 'today') {
+                titlePrefix = 'Today · ';
+            } else if (viewingDay === 'tomorrow') {
+                titlePrefix = 'Tomorrow · ';
+            }
+            document.getElementById('schedule-title').textContent = titlePrefix + dateStr;
 
+            // Render week alerts
+            renderWeekAlerts(targetDate);
+
+            // Check if it's a weekend
             if (dayIndex === -1) {
                 const dayName = dayNames[dayOfWeek];
                 document.getElementById('menu-week-info').textContent = '';
@@ -978,6 +1167,19 @@
                     <div class="weekend-message">
                         <div class="icon">🌴</div>
                         <p>No school on ${dayName}!</p>
+                    </div>`;
+                return;
+            }
+
+            // Check if it's a closure or public holiday
+            const holidayInfo = getHolidayForDate(targetDate);
+            if (holidayInfo && holidayInfo.isClosure) {
+                document.getElementById('menu-week-info').textContent = '';
+                document.getElementById('day-schedule').innerHTML = `
+                    <div class="weekend-message">
+                        <div class="icon">🏖️</div>
+                        <p><strong>${holidayInfo.name}</strong></p>
+                        <p style="margin-top:5px;font-size:0.9rem;">No school - ${holidayInfo.type}</p>
                     </div>`;
                 return;
             }
@@ -1071,26 +1273,33 @@
             document.getElementById('holidays-list').innerHTML = html;
         }
 
-        function updateTime() {
+
+        function checkAutoSwitchToTomorrow() {
             const now = new Date();
-            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-            document.getElementById('date-display').textContent =
-                `${dayNames[now.getDay()]}, ${now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-
-            document.getElementById('time-display').textContent =
-                now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const hour = now.getHours();
+            // If past 6pm and viewing today, auto-switch to tomorrow
+            if (hour >= 18 && viewingDay === 'today') {
+                viewingDay = 'tomorrow';
+                document.getElementById('btn-today').classList.remove('active');
+                document.getElementById('btn-tomorrow').classList.add('active');
+            }
         }
 
         // Initialize
-        updateTime();
-        setInterval(updateTime, 1000);
         setInterval(() => {
-            if (viewingDay === 'today') {
+            if (viewingDay === 'today' || viewingDay === 'tomorrow') {
+                checkAutoSwitchToTomorrow();
                 renderDaySchedule();
             }
         }, 60000); // Update every minute
 
+        // Date picker event listener
+        document.getElementById('date-picker').addEventListener('change', function(e) {
+            jumpToDate(e.target.value);
+        });
+
+        // Check if should show tomorrow on initial load
+        checkAutoSwitchToTomorrow();
         renderDaySchedule();
         renderMenu();
         renderHolidays();
