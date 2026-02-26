@@ -532,6 +532,38 @@
             font-size: 0.85rem;
         }
 
+        /* Soccer Stars Style */
+        .enrichment-activity {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 8px;
+            padding: 8px 12px;
+            border-left: 3px solid #4caf50;
+        }
+
+        .enrichment-activity .enrichment-label {
+            font-weight: 600;
+            color: #2e7d32;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .enrichment-activity .enrichment-time {
+            font-size: 0.8rem;
+            color: #558b2f;
+            margin-top: 2px;
+        }
+
+        .schedule-item.current .enrichment-activity {
+            background: rgba(255,255,255,0.25);
+            border-left-color: white;
+        }
+
+        .schedule-item.current .enrichment-activity .enrichment-label,
+        .schedule-item.current .enrichment-activity .enrichment-time {
+            color: white;
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
             body {
@@ -692,7 +724,7 @@
                         <tr><td>2:45pm</td><td colspan="5" style="text-align:center">Routine Care</td></tr>
                         <tr><td>3:00pm</td><td colspan="5" style="text-align:center">Eat the World (Tea)</td></tr>
                         <tr><td>3:30pm</td><td>Junior Maker House</td><td>Project Time</td><td>Junior Theatre House</td><td>Junior Art House</td><td>Junior G.E.M.S House</td></tr>
-                        <tr><td>4:15pm</td><td colspan="5" style="text-align:center">Urban Wellness</td></tr>
+                        <tr><td>4:00pm</td><td colspan="5" style="text-align:center">Urban Wellness / Enrichment*</td></tr>
                         <tr><td>5:00pm</td><td colspan="5" style="text-align:center">My Time</td></tr>
                         <tr><td>5:30pm</td><td colspan="5" style="text-align:center">Dismissal</td></tr>
                     </table>
@@ -888,7 +920,7 @@
             { time: "2:45pm", hour: 14, min: 45, activity: "Routine Care" },
             { time: "3:00pm", hour: 15, min: 0, activity: "Eat the World", meal: "tea" },
             { time: "3:30pm", hour: 15, min: 30, activities: { 0: "Junior Maker House", 1: "Project Time", 2: "Junior Theatre House", 3: "Junior Art House", 4: "Junior G.E.M.S House" } },
-            { time: "4:15pm", hour: 16, min: 15, activity: "Urban Wellness" },
+            { time: "4:00pm", hour: 16, min: 0, activity: "Urban Wellness", enrichmentSlot: true },
             { time: "5:00pm", hour: 17, min: 0, activity: "My Time" },
             { time: "5:30pm", hour: 17, min: 30, activity: "Dismissal" }
         ];
@@ -918,6 +950,71 @@
             { name: "Christmas Day", date: "25 December", day: "Friday", type: "Public Holiday", dates: [[2026,11,25]] },
             { name: "Eve of New Year", date: "31 December", day: "Thursday", type: "Closes at 3pm", dates: [[2026,11,31]] }
         ];
+
+        // Soccer Stars class dates (optional program) - starts from 9 March 2026
+        const enrichmentDates = {
+            // Format: [year, month (0-indexed), day]
+            monday: [
+                [2026,2,9], [2026,2,16], [2026,2,23], [2026,2,30],
+                [2026,3,6], [2026,3,13], [2026,3,20], [2026,3,27],
+                [2026,4,4], [2026,4,11], [2026,4,18], [2026,4,25],
+                [2026,5,8], [2026,5,15], [2026,5,22], [2026,5,29],
+                [2026,6,6], [2026,6,13], [2026,6,20], [2026,6,27],
+                [2026,7,3], [2026,7,17], [2026,7,31],
+                [2026,8,7], [2026,8,14], [2026,8,21], [2026,8,28],
+                [2026,9,5], [2026,9,12], [2026,9,19], [2026,9,26],
+                [2026,10,2], [2026,10,16], [2026,10,23], [2026,10,30],
+                [2026,11,7], [2026,11,14]
+            ],
+            tuesday: [
+                [2026,2,10], [2026,2,17], [2026,2,24], [2026,2,31],
+                [2026,3,7], [2026,3,14], [2026,3,21], [2026,3,28],
+                [2026,4,5], [2026,4,12], [2026,4,19], [2026,4,26],
+                [2026,5,2], [2026,5,9], [2026,5,16], [2026,5,23],
+                [2026,6,7], [2026,6,14], [2026,6,21], [2026,6,28],
+                [2026,7,4], [2026,7,11], [2026,7,18], [2026,7,25],
+                [2026,8,1], [2026,8,8], [2026,8,15], [2026,8,22],
+                [2026,9,6], [2026,9,13], [2026,9,20], [2026,9,27],
+                [2026,10,3], [2026,10,10], [2026,10,17], [2026,10,24],
+                [2026,11,1], [2026,11,8]
+            ],
+            wednesday: [
+                [2026,2,11], [2026,2,18], [2026,2,25],
+                [2026,3,1], [2026,3,8], [2026,3,15], [2026,3,22], [2026,3,29],
+                [2026,4,6], [2026,4,13], [2026,4,20],
+                [2026,5,3], [2026,5,10], [2026,5,17], [2026,5,24],
+                [2026,6,1], [2026,6,8], [2026,6,15], [2026,6,22], [2026,6,29],
+                [2026,7,5], [2026,7,12], [2026,7,19], [2026,7,26],
+                [2026,8,2], [2026,8,9], [2026,8,16], [2026,8,23],
+                [2026,9,7], [2026,9,14], [2026,9,21], [2026,9,28],
+                [2026,10,4], [2026,10,11], [2026,10,18], [2026,10,25],
+                [2026,11,2], [2026,11,9]
+            ],
+            thursday: [
+                [2026,2,12], [2026,2,19], [2026,2,26],
+                [2026,3,2], [2026,3,9], [2026,3,16], [2026,3,23],
+                [2026,4,7], [2026,4,14], [2026,4,21], [2026,4,28],
+                [2026,5,4], [2026,5,11], [2026,5,18], [2026,5,25],
+                [2026,6,2], [2026,6,9], [2026,6,16], [2026,6,23],
+                [2026,7,6], [2026,7,13], [2026,7,20], [2026,7,27],
+                [2026,8,3], [2026,8,10], [2026,8,17], [2026,8,24],
+                [2026,9,1], [2026,9,8], [2026,9,15], [2026,9,22],
+                [2026,10,5], [2026,10,12], [2026,10,19], [2026,10,26],
+                [2026,11,3], [2026,11,10]
+            ],
+            friday: [
+                [2026,2,20], [2026,2,27],
+                [2026,3,10], [2026,3,17], [2026,3,24],
+                [2026,4,8], [2026,4,15], [2026,4,22], [2026,4,29],
+                [2026,5,5], [2026,5,12], [2026,5,19], [2026,5,26],
+                [2026,6,3], [2026,6,10], [2026,6,24], [2026,6,31],
+                [2026,7,7], [2026,7,14], [2026,7,21], [2026,7,28],
+                [2026,8,11], [2026,8,18], [2026,8,25],
+                [2026,9,9], [2026,9,16], [2026,9,23], [2026,9,30],
+                [2026,10,6], [2026,10,13], [2026,10,20], [2026,10,27],
+                [2026,11,4], [2026,11,11]
+            ]
+        };
 
         let currentWeek = 1;
         let currentDay = 0;
@@ -1048,6 +1145,25 @@
                 }
             }
             return null;
+        }
+
+        function hasEnrichmentClass(targetDate) {
+            const dayOfWeek = targetDate.getDay();
+            if (dayOfWeek === 0 || dayOfWeek === 6) return false; // No enrichment on weekends
+
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const dayKey = dayNames[dayOfWeek];
+            const dates = enrichmentDates[dayKey] || [];
+
+            const targetTime = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()).getTime();
+
+            for (const d of dates) {
+                const enrichmentTime = new Date(d[0], d[1], d[2]).getTime();
+                if (enrichmentTime === targetTime) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         function getWeekAlerts(targetDate) {
@@ -1191,13 +1307,18 @@
 
             document.getElementById('menu-week-info').textContent = `Week ${menuWeek} Menu · ${dayNames[dayOfWeek]}`;
 
+            // Check for enrichment class
+            const hasEnrichment = hasEnrichmentClass(targetDate);
+
             // Render schedule with integrated meals
             let html = '';
+
             scheduleData.forEach((item, index) => {
                 const activity = item.activity || item.activities[dayIndex];
                 const isCurrent = isToday && index === currentSlot;
                 const isPast = isToday && index < currentSlot;
                 const mealType = item.meal;
+                const isEnrichmentSlot = item.enrichmentSlot && hasEnrichment;
 
                 let classes = 'schedule-item';
                 if (isCurrent) classes += ' current';
@@ -1213,6 +1334,13 @@
                             <div class="meal-name">${meal.name}</div>
                             <div class="meal-desc">${meal.desc}</div>
                             <div class="meal-chinese">${meal.cn}</div>
+                        </div>
+                    </div>`;
+                } else if (isEnrichmentSlot) {
+                    activityHtml = `<div class="schedule-activity">
+                        <div class="enrichment-activity">
+                            <div class="enrichment-label">⚽ Soccer Stars</div>
+                            <div class="enrichment-time">4:00 - 4:45pm (Optional)</div>
                         </div>
                     </div>`;
                 } else {
